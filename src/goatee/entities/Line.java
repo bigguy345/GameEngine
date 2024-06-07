@@ -1,8 +1,9 @@
 package goatee.entities;
 
 import goatee.models.Model;
+import goatee.renderEngine.Camera;
 import goatee.renderEngine.VAOLoader;
-import goatee.shaders.StaticShader;
+import goatee.shaders.ShaderHelper;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
@@ -19,10 +20,10 @@ public class Line {
     public Vector3f startPos, endPos, color;
     public Vector3f position, rotation, scale;
     public float[] vertices;
-    // public static StaticShader shader = new StaticShader("lineVert.vsh", "lineFrag.frag");
+    // public static StaticShader shader = new StaticShader("line.vert", "line.frag");
     public Model lineModel;
     public boolean debugAxis;
-    
+
     public Matrix4f transMat = new Matrix4f();
 
     public Line(Vector3f start, Vector3f end, Vector3f col, boolean debugAxis) {
@@ -69,11 +70,13 @@ public class Line {
         Matrix4f.rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0), mat, mat);
         Matrix4f.rotate((float) Math.toRadians(rotation.z), new Vector3f(0, 0, 1), mat, mat);
 
-        StaticShader shader = StaticShader.lineShader;
-        shader.start();
-        //  shader.loadMVP(new Vector3f(2, -1, 0), new Vector3f(0, 0, 0), new Vector3f(1F, 1F, 1F));
-        GL20.glUniform3f(GL20.glGetUniformLocation(shader.getProgramID(), "color"), color.x, color.y, color.z);
-        shader.loadMVP(mat);
+        ShaderHelper.useShader(ShaderHelper.lineShader, shader -> {
+            ShaderHelper.uniformMatrix4x4("model", mat);
+            ShaderHelper.uniformMatrix4x4("view", Camera.getViewMatrix());
+            ShaderHelper.uniformMatrix4x4("projection", Camera.getProjectionMatrix());
+            ShaderHelper.uniformMatrix4x4("mvp", Camera.createMVP(mat));
+            ShaderHelper.uniformVec3("color", color.x, color.y, color.z);
+        });
 
         GL30.glBindVertexArray(lineModel.getVaoID());
         GL20.glEnableVertexAttribArray(0);
@@ -82,7 +85,7 @@ public class Line {
         GL20.glDisableVertexAttribArray(0);
         GL20.glDisableVertexAttribArray(1);
         GL30.glBindVertexArray(0);
-        shader.stop();
+        ShaderHelper.releaseShader();
 
     }
 

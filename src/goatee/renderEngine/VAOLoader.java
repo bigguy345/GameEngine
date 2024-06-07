@@ -27,7 +27,8 @@ public class VAOLoader {
 
     public static Model loadToVao(float[] positions, int[] indices, float[] normal, float[] textureCoords, String modelName) {
         for (Model m : Model.modelEntityMap.keySet()) {
-            if (m.modelName.equals(modelName)) return m;
+            if (m.modelName.equals(modelName))
+                return m;
         }
 
         int vaoID = createVAO();
@@ -76,7 +77,7 @@ public class VAOLoader {
         try {
             texture = TextureLoader.getTexture("png", new FileInputStream(("res/" + filename + ".png")));
         } catch (IOException e) {
-            e.printStackTrace();
+            //  e.printStackTrace();
         }
         int textureID = texture.getTextureID();
         textures.add(textureID);
@@ -95,7 +96,8 @@ public class VAOLoader {
 
     public static Model loadFromObj(String file) {
         for (Model m : Model.modelEntityMap.keySet()) {
-            if (m.modelName.equals(file)) return m;
+            if (m.modelName.equals(file))
+                return m;
         }
 
         List<Float> vertices = new ArrayList<>(), unsortedtcoords = new ArrayList<>(), unsortednormals = new ArrayList<>();
@@ -142,7 +144,8 @@ public class VAOLoader {
                 }
 
             }
-            if (vertices.isEmpty()) throw new IllegalArgumentException("No vertices were found in file!");
+            if (vertices.isEmpty())
+                throw new IllegalArgumentException("No vertices were found in file!");
         } catch (Exception e) {
             e.printStackTrace();
         }

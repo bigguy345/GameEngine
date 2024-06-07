@@ -4,8 +4,7 @@ import goatee.entities.*;
 import goatee.renderEngine.Camera;
 import goatee.renderEngine.ModelRenderer;
 import goatee.renderEngine.VAOLoader;
-import goatee.shaders.ShaderProgram;
-import goatee.shaders.StaticShader;
+import goatee.shaders.ShaderHelper;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.*;
@@ -19,7 +18,7 @@ public class Main {
     public static int height = 1080;
     public static Instant beginTime;
     public static Duration runTime = Duration.ofSeconds(0);
-    public static float timeF;
+    public static float timeSinceStart;
     public static Sphere s;
     public static Light light;
     public static Entity miku;
@@ -30,6 +29,7 @@ public class Main {
         createDisplay();
 
         ModelRenderer renderer = new ModelRenderer();
+        ShaderHelper.loadShaders();
         float scale = 0.5f;
 
         float[] vertices = {-0.5f, 0.5f, 0f, //V0
@@ -47,6 +47,7 @@ public class Main {
         Entity e = new Entity(0, 0f, 1.5f);
         e.loadModel(vertices, indices, new float[10], textureCoords, "catscreen");
         e.getModel().setTexture("cat");
+        e.shaderProgram = ShaderHelper.entityShader;
 
         Cube c = new Cube(0.8f, 0, 1.7f);
 
@@ -54,7 +55,6 @@ public class Main {
         s = new Sphere(1f, 72, 36);
         s.setPosition(-2f, 5f, 2f);
         s.setScale(scale, scale, scale);
-        s.setShader(StaticShader.entityShader);
         //s.getModel().setTexture(VAOLoader.loadTexture("4"));
 
         light = new Light(0, 5, 0);
@@ -65,15 +65,15 @@ public class Main {
         uvsphere.setScale(scale, scale, scale);
         Line.createAxisLines();
 
-        miku = new Entity(0, 2, -1f);
+        miku = new Entity(0, 0, 0f);
         miku.loadModel("hatsune.obj");
+        miku.setScale(0.1f);
         miku.setColor(1, 1, 1f);
 
         while (!Display.isCloseRequested()) {
-
             Camera.updateControls();
-            renderer.render();
             Entity.updateAll();
+            renderer.render();
             updateDisplay();
             updateTime();
         }
@@ -90,7 +90,6 @@ public class Main {
             Display.setDisplayMode(dm);
             Display.create(new PixelFormat(), attribs);
             Display.setTitle("Game Engine");
-
         } catch (LWJGLException e) {
             e.printStackTrace();
         }
@@ -104,14 +103,14 @@ public class Main {
 
     public static void updateTime() {
         runTime = Duration.between(beginTime, Instant.now());
-        timeF = (float) (runTime.toMillis()) / 1000;
+        timeSinceStart = (float) (runTime.toMillis()) / 1000;
     }
 
     public static void exit() {
 
         System.out.println("(INFO): Exiting from main.");
-        ShaderProgram.cleanUp();
         VAOLoader.cleanUp();
+        ShaderHelper.cleanUp();
         Display.destroy();
         System.exit(0);
     }

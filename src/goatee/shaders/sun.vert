@@ -8,11 +8,11 @@ out vec2 passTextCoords;
 out vec3 surfaceNormal;
 
 uniform mat4 mvp;
-uniform mat4 transMat;
+uniform mat4 model;
 uniform vec2 res;
 uniform vec3 lightPosition;
 void main() {
-    vec4 worldPos = transMat * vec4(position, 1.0);
+    vec4 worldPos = model * vec4(position, 1.0);
     gl_Position = mvp * vec4(position, 1.0);
     passTextCoords = textureCoords;
 

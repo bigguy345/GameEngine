@@ -1,7 +1,11 @@
 package goatee.models;
 
+import goatee.Main;
 import goatee.entities.Entity;
+import goatee.renderEngine.Camera;
+import goatee.renderEngine.ModelRenderer;
 import goatee.renderEngine.VAOLoader;
+import goatee.shaders.ShaderHelper;
 import goatee.utils.u;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -46,26 +50,39 @@ public class Model {
             GL20.glEnableVertexAttribArray(2);
 
             for (Entity e : modelEntityMap.get(m)) {
-                if (e.renderPass) continue;
-                e.getShader().start();
-                e.getShader().loadMVP(e);
+                if (!e.shouldRender)
+                    continue;
+
+                ShaderHelper.useShader(e.shaderProgram, shader -> {
+                    ShaderHelper.uniformVec3("lightColor", Main.light.color.x, Main.light.color.y, Main.light.color.z);
+                    ShaderHelper.uniformVec3("lightPosition", Main.light.position.x, Main.light.position.y, Main.light.position.z);
+
+                    ShaderHelper.uniformMatrix4x4("model", e.modelMatrix.getMatrix());
+                    ShaderHelper.uniformMatrix4x4("view", Camera.getViewMatrix());
+                    ShaderHelper.uniformMatrix4x4("projection", Camera.getProjectionMatrix());
+                    ShaderHelper.uniformMatrix4x4("mvp", Camera.createMVP(e.modelMatrix.getMatrix()));
+                    ShaderHelper.uniform1f("hasTexture", e.hasTexture() ? 1 : 0);
+
+                    ShaderHelper.uniformVec3("objColor", e.getColor().x, e.getColor().y, e.getColor().z);
+
+
+                });
                 if (e.hasTexture()) {
-                    e.getShader().setTexture(true);
                     GL13.glActiveTexture(GL13.GL_TEXTURE0);
                     u.bindTexture(m.getTexture());
                 } else {
-                    e.getShader().setTexture(false);
                     u.bindTexture(0);
                 }
                 // GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, model.getVertexCount());
                 GL11.glDrawElements(GL11.GL_TRIANGLES, m.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-                e.getShader().stop();
+                ShaderHelper.releaseShader();
             }
 
             GL20.glDisableVertexAttribArray(0);
             GL20.glDisableVertexAttribArray(1);
             GL20.glDisableVertexAttribArray(2);
             GL30.glBindVertexArray(0);
+            ModelRenderer.bo = true;
         }
     }
 

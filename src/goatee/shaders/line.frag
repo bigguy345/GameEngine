@@ -20,12 +20,12 @@ void main(void) {
     float luminance = dot(vec3(outColor), vec3(0.2126, 0.7152, 0.0722));
     float gradient = fwidth(luminance);
     bool isEdge = gradient > threshold;
-    // outColor = vec4(uv.x, 1, uv.y,1.0);
-    vec3 c = vec3(uv.xy, 0.5+0.5*sin(time *1));
+    outColor = vec4(uv.x, 1, uv.y, 1.0);
+    // vec3 c = vec3(uv.xy, 0.5+0.5*sin(time *1));
 
 
     // outColor = vec4(mix(c.x,color1.x),mix(c.y,color1.y),mix(c.z,color1.z),1);
-    outColor = vec4(1, 1, 1, 1) * vec4(c, 1.0);
+    // outColor = vec4(c, 1.0);
 
 
 }

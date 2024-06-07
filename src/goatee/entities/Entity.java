@@ -3,7 +3,7 @@ package goatee.entities;
 import goatee.Main;
 import goatee.models.Model;
 import goatee.renderEngine.VAOLoader;
-import goatee.shaders.StaticShader;
+import goatee.shaders.ShaderHelper;
 import goatee.utils.TransMat;
 import goatee.utils.u;
 import org.lwjgl.util.vector.Vector3f;
@@ -13,20 +13,23 @@ import java.util.List;
 
 public class Entity {
     public static List<Entity> entities = new ArrayList<>();
-    public Model m;
+    public Model model;
     public Vector3f position = new Vector3f();
     public Vector3f rotation = new Vector3f();
     public Vector3f scale = new Vector3f();
     public Vector3f color = new Vector3f();
-    public boolean renderPass = false;
-    public TransMat mat = new TransMat();
-    private StaticShader shaderProg;
+    public boolean shouldRender = true;
+    public TransMat modelMatrix = new TransMat();
+
+    public int shaderProgram;
 
     public Entity() {
         entities.add(this);
         setRotation(0, 0, 0);
         setScale(1, 1, 1);
         setColor(1, 0, 0);
+        shaderProgram = ShaderHelper.entityShader;
+
     }
 
     public Entity(float x, float y, float z) {
@@ -36,29 +39,27 @@ public class Entity {
     }
 
     public static void updateAll() {
-        for (Entity e : entities) {
+        for (Entity e : entities)
             e.tick();
-        }
     }
 
     public void tick() {
-        handleTransMat();
+        doTransformations();
         if (this instanceof Light) {
-            rotateZ(Main.timeF * 20, 15.0f, Main.miku.position);
+            rotateZ(Main.timeSinceStart * 20, 10.0f, Main.miku.position);
         } else if (this instanceof Sphere) {
-            rotateZ(Main.timeF * 120, 2f, Main.light.position);
+            rotateZ(Main.timeSinceStart * 120, 2f, Main.light.position);
         }
 
     }
 
-    public void handleTransMat() {
-        mat.setIdentity(); //sets everything to the center, 1x scale, 0,0,0 translation from origin with no rotation
-        mat.translate(position);
-
-        mat.scale(scale.x, scale.y, scale.z);
-        mat.rotate(rotation.x, 1, 0, 0);
-        mat.rotate(rotation.y, 0, 1, 0);
-        mat.rotate(rotation.z, 0, 0, 1);
+    public void doTransformations() {
+        modelMatrix.setIdentity(); //sets everything to the center, 1x scale, 0,0,0 translation from origin with no rotation
+        modelMatrix.translate(position);
+        modelMatrix.scale(scale.x, scale.y, scale.z);
+        modelMatrix.rotate(rotation.x, 1, 0, 0);
+        modelMatrix.rotate(rotation.y, 0, 1, 0);
+        modelMatrix.rotate(rotation.z, 0, 0, 1);
     }
 
     public void rotateY(float a, float r, Vector3f origin) {
@@ -93,8 +94,6 @@ public class Entity {
         rotation.x += rot.x;
         rotation.y += rot.y;
         rotation.z += rot.z;
-
-
     }
 
     public void setRotation(float x, float y, float z) {
@@ -116,22 +115,19 @@ public class Entity {
     }
 
     public void loadModel(List<Vector3f> vertices, List<Integer> indices, List<Vector3f> normals, List<Float> tCoords, String modelName) {
-        this.m = VAOLoader.loadToVao(vertices, indices, normals, tCoords, modelName);
-        setShader(StaticShader.entityShader);
+        this.model = VAOLoader.loadToVao(vertices, indices, normals, tCoords, modelName);
     }
 
     public void loadModel(float[] vertices, int[] indices, float[] normals, float[] tCoords, String modelName) {
-        this.m = VAOLoader.loadToVao(vertices, indices, normals, tCoords, modelName);
-        setShader(StaticShader.entityShader);
+        this.model = VAOLoader.loadToVao(vertices, indices, normals, tCoords, modelName);
     }
 
     public void loadModel(String modelName) {
-        this.m = VAOLoader.loadFromObj(modelName);
-        setShader(StaticShader.entityShader);
+        this.model = VAOLoader.loadFromObj(modelName);
     }
 
     public boolean hasTexture() {
-        return m.getTexture() != -1;
+        return model.getTexture() != -1;
     }
 
     public Vector3f getPosition() {
@@ -143,11 +139,11 @@ public class Entity {
     }
 
     public Model getModel() {
-        return m;
+        return model;
     }
 
     public void setModel(Model m) {
-        this.m = m;
+        this.model = m;
     }
 
     public Vector3f getRotation() {
@@ -193,18 +189,11 @@ public class Entity {
     }
 
     public boolean hasModel() {
-        return m != null || m.getVaoID() != -1;
+        return model != null || model.getVaoID() != -1;
     }
 
-    public StaticShader getShader() {
-        return shaderProg;
-    }
 
-    public void setShader(StaticShader s) {
-        shaderProg = s;
-    }
-
-    public void setRenderPass(boolean bo) {
-        renderPass = bo;
+    public void setShouldRender(boolean bo) {
+        shouldRender = bo;
     }
 }

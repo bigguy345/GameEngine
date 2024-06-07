@@ -4,8 +4,11 @@ in vec2 passTextCoords;
 in vec3 surfaceNormal;
 in vec3 toLightVector;
 in mat4 tm;
+in vec3 vertexPosition;
+in vec3 fragPosition;
 out vec4 outColor;
 
+uniform float time;
 uniform sampler2D textureSampler;
 uniform vec2 res;
 uniform vec3 lightColor;

@@ -2,6 +2,7 @@ package goatee.renderEngine;
 
 import goatee.Main;
 import goatee.entities.Line;
+import goatee.utils.TransMat;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Matrix4f;
@@ -16,6 +17,7 @@ public class Camera {
     public static float yaw = 230, pitch = 0, roll, PITCH_MAX = 90;
     public static Matrix4f mvp;
     public static Matrix4f projViewMatrix;
+    public static Matrix4f projectionMatrix;
     public static Matrix4f viewMatrix;
     public static int press = 0;
 
@@ -46,10 +48,14 @@ public class Camera {
             float dz2 = (float) (Math.cos((angle2 * Math.PI) / 180) * speed);
 
             Vector3f v = null;
-            if (kd(Keyboard.KEY_W) && kd(Keyboard.KEY_D)) v = new Vector3f(dx + dx2, 0, dz + dz2);
-            else if (kd(Keyboard.KEY_W) && kd(Keyboard.KEY_A)) v = new Vector3f(dx - dx2, 0, dz - dz2);
-            else if (kd(Keyboard.KEY_S) && kd(Keyboard.KEY_D)) v = new Vector3f(-dx + dx2, 0, -dz + dz2);
-            else if (kd(Keyboard.KEY_S) && kd(Keyboard.KEY_A)) v = new Vector3f(-dx - dx2, 0, -dz - dz2);
+            if (kd(Keyboard.KEY_W) && kd(Keyboard.KEY_D))
+                v = new Vector3f(dx + dx2, 0, dz + dz2);
+            else if (kd(Keyboard.KEY_W) && kd(Keyboard.KEY_A))
+                v = new Vector3f(dx - dx2, 0, dz - dz2);
+            else if (kd(Keyboard.KEY_S) && kd(Keyboard.KEY_D))
+                v = new Vector3f(-dx + dx2, 0, -dz + dz2);
+            else if (kd(Keyboard.KEY_S) && kd(Keyboard.KEY_A))
+                v = new Vector3f(-dx - dx2, 0, -dz - dz2);
 
             return v;
         }
@@ -61,9 +67,12 @@ public class Camera {
         float dz = (float) (Math.cos((angle * Math.PI) / 180) * speed);
         Vector3f v = null;
         boolean pstvDir = kd(Keyboard.KEY_W) || kd(Keyboard.KEY_D);
-        if ((kd(Keyboard.KEY_S) || kd(Keyboard.KEY_A)) && !pstvDir) v = new Vector3f(-dx, 0, -dz);
-        else if (!(kd(Keyboard.KEY_S) || kd(Keyboard.KEY_A)) && pstvDir) v = new Vector3f(dx, 0, dz);
-        else v = new Vector3f(0, 0, 0);
+        if ((kd(Keyboard.KEY_S) || kd(Keyboard.KEY_A)) && !pstvDir)
+            v = new Vector3f(-dx, 0, -dz);
+        else if (!(kd(Keyboard.KEY_S) || kd(Keyboard.KEY_A)) && pstvDir)
+            v = new Vector3f(dx, 0, dz);
+        else
+            v = new Vector3f(0, 0, 0);
 
         return v;
     }
@@ -83,7 +92,7 @@ public class Camera {
 
         boolean zMovement = kd(Keyboard.KEY_W) || kd(Keyboard.KEY_S);
         boolean xMovement = kd(Keyboard.KEY_D) || kd(Keyboard.KEY_A);
-        float speed = 0.005f * 10f;
+        float speed = 0.005f * 2f;
         boolean diagonalMovement = zMovement && xMovement;
         float diagonalSpeed = 2f * 0.5f;
 
@@ -98,27 +107,41 @@ public class Camera {
         }
 
 
-        float verticalSpeed = 0.015f;
-        if (kd(Keyboard.KEY_LSHIFT)) position.y -= verticalSpeed;
-        if (kd(Keyboard.KEY_SPACE)) position.y += verticalSpeed;
+        float verticalSpeed = 0.015f * 0.5f;
+        if (kd(Keyboard.KEY_LSHIFT))
+            position.y -= verticalSpeed;
+        if (kd(Keyboard.KEY_SPACE))
+            position.y += verticalSpeed;
 
         float speed2 = 0.041f;
-        if (kd(Keyboard.KEY_UP)) Main.light.move(0, speed2, 0);
-        if (kd(Keyboard.KEY_N)) Main.miku.move(0, speed2, 0);
-        if (kd(Keyboard.KEY_M)) Main.miku.move(0, -speed2, 0);
+        if (kd(Keyboard.KEY_UP))
+            Main.light.move(0, speed2, 0);
+        if (kd(Keyboard.KEY_N))
+            Main.miku.move(0, speed2, 0);
+        if (kd(Keyboard.KEY_M))
+            Main.miku.move(0, -speed2, 0);
 
 
-        if (kd(Keyboard.KEY_DOWN)) Main.light.move(0, -speed2, 0);
-        if (kd(Keyboard.KEY_LEFT)) Main.light.move(-speed2, 0, 0);
-        if (kd(Keyboard.KEY_RIGHT)) Main.light.move(speed2, 0, 0);
-        if (kd(Keyboard.KEY_V)) Main.s.move(0, 0, speed2);
-        if (kd(Keyboard.KEY_B)) Main.s.move(0, 0, -speed2);
+        if (kd(Keyboard.KEY_DOWN))
+            Main.light.move(0, -speed2, 0);
+        if (kd(Keyboard.KEY_LEFT))
+            Main.light.move(-speed2, 0, 0);
+        if (kd(Keyboard.KEY_RIGHT))
+            Main.light.move(speed2, 0, 0);
+        if (kd(Keyboard.KEY_V))
+            Main.s.move(0, 0, speed2);
+        if (kd(Keyboard.KEY_B))
+            Main.s.move(0, 0, -speed2);
 
 
-        if (kd(Keyboard.KEY_C)) Main.s.rotation.x -= 1;
-        if (kd(Keyboard.KEY_F)) Main.s.rotation.y += 0.1f;
-        if (kd(Keyboard.KEY_G)) Main.s.rotation.z -= 1;
-        if (kp(Keyboard.KEY_F5)) Line.enableDebugAxis = !Line.enableDebugAxis;
+        if (kd(Keyboard.KEY_C))
+            Main.s.rotation.x -= 1;
+        if (kd(Keyboard.KEY_F))
+            Main.s.rotation.y += 0.1f;
+        if (kd(Keyboard.KEY_G))
+            Main.s.rotation.z -= 1;
+        if (kp(Keyboard.KEY_F5))
+            Line.enableDebugAxis = !Line.enableDebugAxis;
         if (kd(Keyboard.KEY_G)) {
             position.z = -1;
             position.y = 0;
@@ -126,7 +149,7 @@ public class Camera {
             pitch = 0;
             yaw = 180;
         }
-        if (Main.timeF > 0.5) {
+        if (Main.timeSinceStart > 0.5) {
             pitch -= (Mouse.getDY() * 0.05);
             yaw += (Mouse.getDX() * 0.05);
         }
@@ -140,16 +163,20 @@ public class Camera {
     }
 
     public static void checkPosLimits() {
-        if (pitch >= PITCH_MAX) pitch = PITCH_MAX;
-        if (pitch <= -PITCH_MAX) pitch = -PITCH_MAX;
+        if (pitch >= PITCH_MAX)
+            pitch = PITCH_MAX;
+        if (pitch <= -PITCH_MAX)
+            pitch = -PITCH_MAX;
 
-        if (position.y <= 0) position.y = 0;
-        if (press > 0) press--;
+        if (position.y <= 0)
+            position.y = 0;
+        if (press > 0)
+            press--;
     }
 
     public static Matrix4f createProjView() {
         Matrix4f pv = new Matrix4f();
-        Matrix4f.mul(createProjMatrix(), createViewMatrix(), pv);
+        Matrix4f.mul(getProjectionMatrix(), getViewMatrix(), pv);
 
         projViewMatrix = pv;
         return pv;
@@ -163,44 +190,36 @@ public class Camera {
         return m;
     }
 
-    public static Matrix4f createProjMatrix() {
-        Matrix4f projectionMatrix = new Matrix4f();
-        aspect_ratio = (float) Main.width / (float) Main.height;
-        float y_scale = (float) ((1f / Math.tan(Math.toRadians(FOV / 2F))) * aspect_ratio);
-        float x_scale = y_scale / aspect_ratio;
-        float frustum_length = far - near;
+    public static Matrix4f getProjectionMatrix() {
+        if (projectionMatrix == null) {
+            projectionMatrix = new Matrix4f();
+            aspect_ratio = (float) Main.width / Main.height;
+            float y_scale = (float) ((1f / Math.tan(Math.toRadians(FOV / 2F))) * aspect_ratio);
+            float x_scale = y_scale / aspect_ratio;
+            float frustum_length = far - near;
 
-        projectionMatrix.m00 = x_scale;
-        projectionMatrix.m11 = y_scale;
-        projectionMatrix.m22 = -((far + near) / frustum_length);
-        projectionMatrix.m23 = -1;
-        projectionMatrix.m32 = -((2 * near * far) / frustum_length);
-        projectionMatrix.m33 = 0;
+            projectionMatrix.m00 = x_scale;
+            projectionMatrix.m11 = y_scale;
+            projectionMatrix.m22 = -((far + near) / frustum_length);
+            projectionMatrix.m23 = -1;
+            projectionMatrix.m32 = -((2 * near * far) / frustum_length);
+            projectionMatrix.m33 = 0;
+        }
+
         return projectionMatrix;
     }
 
-    public static Matrix4f createViewMatrix() {
-        Matrix4f viewMatrix = new Matrix4f();
-        viewMatrix.setIdentity();
-        Matrix4f.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0), viewMatrix, viewMatrix);
-        Matrix4f.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0), viewMatrix, viewMatrix);
-        Matrix4f.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1), viewMatrix, viewMatrix);
+    public static Matrix4f getViewMatrix() {
         Vector3f negativeCameraPos = new Vector3f(-position.getX(), -position.getY(), -position.getZ());
-        Matrix4f.translate(negativeCameraPos, viewMatrix, viewMatrix);
-        return viewMatrix;
+        TransMat view = new TransMat();
+
+        view.rotate(pitch, 1, 0, 0);
+        view.rotate(yaw, 0, 1, 0);
+        view.rotate(roll, 0, 0, 1);
+        view.translate(negativeCameraPos);
+        return view.getMatrix();
     }
 
-//    public static Matrix4f createTransMat(Vector3f trans, Vector3f rot, Vector3f scale) {
-//        Entity e = null;
-//        Matrix4f mat = e.getModel().transMat;
-//        mat.setIdentity();
-//        mat.scale(new Vector3f(scale.x, scale.y, scale.z));
-//        Matrix4f.translate(trans, mat, mat);
-//        Matrix4f.rotate((float) Math.toRadians(rot.x), new Vector3f(1, 0, 0), mat, mat);
-//        Matrix4f.rotate((float) Math.toRadians(rot.y), new Vector3f(0, 1, 0), mat, mat);
-//        Matrix4f.rotate((float) Math.toRadians(rot.z), new Vector3f(0, 0, 1), mat, mat);
-//        return mat;
-//    }
 
     public static Vector3f getLookVec() {
         float xzLen = (float) Math.cos(pitch);
