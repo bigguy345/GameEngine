@@ -1,5 +1,6 @@
 package goatee;
 
+import goatee.constants.Resources;
 import goatee.entities.*;
 import goatee.renderEngine.Camera;
 import goatee.renderEngine.ModelRenderer;
@@ -46,7 +47,7 @@ public class Main {
         float[] textureCoords = {0, 0, 0, 1, 1, 1, 1, 0};
         Entity e = new Entity(0, 0f, 1.5f);
         e.loadModel(vertices, indices, new float[10], textureCoords, "catscreen");
-        e.getModel().setTexture("cat");
+        e.getModel().setTexture(Resources.TEXTURE_DIRECTORY + "cat.png", "png");
         e.shaderProgram = ShaderHelper.entityShader;
 
         Cube c = new Cube(0.8f, 0, 1.7f);
@@ -61,12 +62,12 @@ public class Main {
         // light.getModel().setTexture("sun");
 
         Entity uvsphere = new Entity(1.7f, 0, 1.5f);
-        uvsphere.loadModel("cube.obj");
+        uvsphere.loadModel(Resources.MODEL_DIRECTORY + "cube.obj");
         uvsphere.setScale(scale, scale, scale);
         Line.createAxisLines();
 
         miku = new Entity(0, 0, 0f);
-        miku.loadModel("hatsune.obj");
+        miku.loadModel(Resources.MODEL_DIRECTORY + "hatsune.obj");
         miku.setScale(0.1f);
         miku.setColor(1, 1, 1f);
 

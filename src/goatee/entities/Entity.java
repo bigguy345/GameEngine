@@ -127,7 +127,7 @@ public class Entity {
     }
 
     public boolean hasTexture() {
-        return model.getTexture() != -1;
+        return model.getTexture() != null && model.getTexture().id != -1;
     }
 
     public Vector3f getPosition() {

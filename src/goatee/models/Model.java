@@ -4,7 +4,6 @@ import goatee.Main;
 import goatee.entities.Entity;
 import goatee.renderEngine.Camera;
 import goatee.renderEngine.ModelRenderer;
-import goatee.renderEngine.VAOLoader;
 import goatee.shaders.ShaderHelper;
 import goatee.utils.u;
 import org.lwjgl.opengl.GL11;
@@ -19,7 +18,7 @@ import java.util.Map;
 
 public class Model {
     public static Map<Model, List<Entity>> modelEntityMap = new HashMap<>();
-    public int textureID = -1;
+    public Texture texture;
     public String modelName;
     private int vaoID = -1;
     private int vertexCount;
@@ -69,7 +68,7 @@ public class Model {
                 });
                 if (e.hasTexture()) {
                     GL13.glActiveTexture(GL13.GL_TEXTURE0);
-                    u.bindTexture(m.getTexture());
+                    u.bindTexture(m.getTexture().id);
                 } else {
                     u.bindTexture(0);
                 }
@@ -95,12 +94,12 @@ public class Model {
         return vertexCount;
     }
 
-    public int getTexture() {
-        return textureID;
+    public Texture getTexture() {
+        return texture;
     }
 
-    public void setTexture(String filename) {
-        textureID = VAOLoader.loadTexture(filename);
+    public void setTexture(String filename, String format) {
+        texture = TextureManager.bindTexture(filename);
     }
 
 }

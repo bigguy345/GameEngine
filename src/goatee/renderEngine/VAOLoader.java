@@ -7,13 +7,9 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector3f;
-import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -64,7 +60,7 @@ public class VAOLoader {
         int vboID = GL15.glGenBuffers(); //make new buffer and bind if
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
         vbos.add(vboID);
-        FloatBuffer b = u.storeDataInFloatBuffer(data);
+        FloatBuffer b = u.toFloatBuffer(data);
 
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, b, GL15.GL_STATIC_DRAW); //store data in buffer
         //store buffer in attribute list
@@ -72,32 +68,20 @@ public class VAOLoader {
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 
-    public static int loadTexture(String filename) {
-        Texture texture = null;
-        try {
-            texture = TextureLoader.getTexture("png", new FileInputStream(("res/" + filename + ".png")));
-        } catch (IOException e) {
-            //  e.printStackTrace();
-        }
-        int textureID = texture.getTextureID();
-        textures.add(textureID);
-        return textureID;
-    }
-
     private static void bindIndicesBuffer(int[] indices) {
         int vboID = GL15.glGenBuffers();
         vbos.add(vboID);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboID);
 
-        IntBuffer b = u.storeDataInIntBuffer(indices);
+        IntBuffer b = u.toIntBuffer(indices);
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, b, GL15.GL_STATIC_DRAW);
 
     }
 
     public static Model loadFromObj(String file) {
-        for (Model m : Model.modelEntityMap.keySet()) {
-            if (m.modelName.equals(file))
-                return m;
+        for (Model model : Model.modelEntityMap.keySet()) {
+            if (model.modelName.equals(file))
+                return model;
         }
 
         List<Float> vertices = new ArrayList<>(), unsortedtcoords = new ArrayList<>(), unsortednormals = new ArrayList<>();
@@ -105,31 +89,30 @@ public class VAOLoader {
         List<Float> sortedtcoords = new ArrayList<>(), sortednormals = new ArrayList<>();
 
         try {
-            String loc = "res/";
-            BufferedReader r = new BufferedReader(new FileReader(loc + file));
+            BufferedReader reader = new BufferedReader(new FileReader(file));
 
-            String l;
-            while ((l = r.readLine()) != null) {
+            String line;
+            while ((line = reader.readLine()) != null) {
 
-                if (l.startsWith("v ")) {
-                    String[] s = l.split(" ");
+                if (line.startsWith("v ")) {
+                    String[] s = line.split(" ");
                     for (int i = 1; i < s.length; i++)
                         vertices.add(Float.parseFloat(s[i]));
 
-                } else if (l.startsWith("vn ")) {
-                    String[] s = l.split(" ");
+                } else if (line.startsWith("vn ")) {
+                    String[] s = line.split(" ");
                     for (int i = 1; i < s.length; i++)
                         unsortednormals.add(Float.parseFloat(s[i]));
 
 
-                } else if (l.startsWith("vt ")) {
-                    String[] s = l.split(" ");
+                } else if (line.startsWith("vt ")) {
+                    String[] s = line.split(" ");
                     for (int i = 1; i < s.length; i++)
                         unsortedtcoords.add(Float.parseFloat(s[i]));
 
 
-                } else if (l.startsWith("f ")) {
-                    String[] rmvSpace = l.replace("f", "").replaceFirst(" ", "").split(" ");
+                } else if (line.startsWith("f ")) {
+                    String[] rmvSpace = line.replace("f", "").replaceFirst(" ", "").split(" ");
 
                     for (int i = 0; i < rmvSpace.length; i++) {
                         // 5/1/1, 3/2/1, 1/3/1

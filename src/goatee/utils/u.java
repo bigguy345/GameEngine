@@ -13,14 +13,14 @@ import java.util.List;
 public class u {
 
 
-    public static IntBuffer storeDataInIntBuffer(int[] data) {
+    public static IntBuffer toIntBuffer(int[] data) {
         IntBuffer b = BufferUtils.createIntBuffer(data.length);
         b.put(data);
         b.flip(); //prepares buffer to be read from, as it expects to be written to;
         return b;
     }
 
-    public static FloatBuffer storeDataInFloatBuffer(float[] data) {
+    public static FloatBuffer toFloatBuffer(float[] data) {
         FloatBuffer b = BufferUtils.createFloatBuffer(data.length);
         b.put(data);
         b.flip(); //prepares buffer to be read from, as it expects to be written to;

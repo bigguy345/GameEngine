@@ -1,6 +1,7 @@
 package goatee.shaders;
 
 import goatee.Main;
+import goatee.constants.Resources;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.GL11;
@@ -26,18 +27,16 @@ public abstract class ShaderHelper {
     public static int lineShader;
     public static int sunShader;
 
-    private FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
 
     public static void loadShaders() {
-        entityShader = createShader("entity.vert", "entity.frag");
-        lineShader = createShader("line.vert", "line.frag");
-        sunShader = createShader("sun.vert", "sun.frag");
+        entityShader = createProgram("entity.vert", "entity.frag");
+        lineShader = createProgram("line.vert", "line.frag");
+        sunShader = createProgram("sun.vert", "sun.frag");
     }
 
-    public static int createShader(String vertexFile, String fragmentFile) {
-        String loc = "src/goatee/shaders/";
-        int vertexShaderID = createShader(loc + vertexFile, GL20.GL_VERTEX_SHADER);
-        int fragmentShaderID = createShader(loc + fragmentFile, GL20.GL_FRAGMENT_SHADER);
+    public static int createProgram(String vertexFile, String fragmentFile) {
+        int vertexShaderID = createShader(Resources.SHADER_DIRECTORY + vertexFile, GL20.GL_VERTEX_SHADER);
+        int fragmentShaderID = createShader(Resources.SHADER_DIRECTORY + fragmentFile, GL20.GL_FRAGMENT_SHADER);
         int programID = GL20.glCreateProgram();
         GL20.glAttachShader(programID, vertexShaderID);
         GL20.glAttachShader(programID, fragmentShaderID);
@@ -82,14 +81,15 @@ public abstract class ShaderHelper {
         return shaderID;
     }
 
-
     public static void bindAttribute(int attribute, String variableName) {
         GL20.glBindAttribLocation(currentProgram, attribute, variableName);
     }
 
+    public static void loadUniforms(int shader, IShaderUniform uniforms) {
+        uniforms.load(shader);
+    }
 
     public static void useShader(int shader, IShaderUniform uniforms) {
-        //binds shader
         GL20.glUseProgram(currentProgram = shader);
 
         if (shader != 0) { //loads all uniforms
@@ -103,10 +103,6 @@ public abstract class ShaderHelper {
 
     public static void useShader(int shader) {
         useShader(shader, null);
-    }
-
-    public static void loadUniforms(int shader, IShaderUniform uniforms) {
-        uniforms.load(shader);
     }
 
     public static void releaseShader() {
